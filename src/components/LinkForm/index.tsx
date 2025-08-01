@@ -5,8 +5,10 @@ import './styles.css';
 
 
 
+
+
 interface LinkFormProps {
-  initialData?: Omit<LinkItem, 'id' | 'createdAt'>;
+  initialData?: LinkItem;
   onSubmit: (data: Omit<LinkItem, 'id' | 'createdAt'>) => void;
   onCancel: () => void;
 }
@@ -17,8 +19,14 @@ const LinkForm: React.FC<LinkFormProps> = ({ initialData, onSubmit, onCancel }) 
     url: '',
     description: '',
     tags: [],
-    ...initialData
+    ...(initialData ? {
+      title: initialData.title,
+      url: initialData.url,
+      description: initialData.description,
+      tags: initialData.tags
+    } : {})
   });
+
   const [errors, setErrors] = useState<string[]>([]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

@@ -4,7 +4,6 @@ import Tag from '../Tag/index.tsx';
 import './styles.css';
 
 
-
 interface LinkItemProps {
   link: LinkItem;
   onEdit: (id: string) => void;
@@ -12,21 +11,34 @@ interface LinkItemProps {
 }
 
 const LinkItem: React.FC<LinkItemProps> = ({ link, onEdit, onDelete }) => {
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.open(link.url, '_blank');
+  };
+
   return (
     <div className="link-card">
       <div className="link-header">
-        <h3>
-          <a href={link.url} target="_blank" rel="noopener noreferrer">
-            {link.title}
-          </a>
-        </h3>
+        <h3 onClick={handleClick}>{link.title}</h3>
         <div className="link-actions">
-          <button className="edit-btn" onClick={() => onEdit(link.id)}>✏️</button>
-          <button className="delete-btn" onClick={() => onDelete(link.id)}>🗑️</button>
+          <button 
+            className="edit-btn" 
+            onClick={() => onEdit(link.id)}
+          >
+            Edit
+          </button>
+          <button 
+            className="delete-btn" 
+            onClick={() => onDelete(link.id)}
+          >
+            Delete
+          </button>
         </div>
       </div>
       
-      <p className="link-url">{link.url}</p>
+      <a href={link.url} className="link-url" target="_blank" rel="noopener noreferrer">
+        {link.url}
+      </a>
       
       {link.description && (
         <p className="link-description">{link.description}</p>
@@ -41,7 +53,9 @@ const LinkItem: React.FC<LinkItemProps> = ({ link, onEdit, onDelete }) => {
       )}
       
       <div className="link-footer">
-        <span>Added: {new Date(link.createdAt).toLocaleDateString()}</span>
+        <span className="link-date">
+          Added: {new Date(link.createdAt).toLocaleDateString()}
+        </span>
       </div>
     </div>
   );

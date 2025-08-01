@@ -7,6 +7,8 @@ import SearchBar from './components/SearchBar/index.tsx';
 import './App.css';
 
 
+
+
 const App = () => {
   const [links, setLinks] = useLocalStorage<LinkItem[]>('links', []);
   const [searchTerm, setSearchTerm] = useState('');
@@ -23,14 +25,22 @@ const App = () => {
     );
   });
 
-  const handleAddLink = (newLink: Omit<LinkItem, 'id'>) => {
-    setLinks([...links, { ...newLink, id: crypto.randomUUID(), createdAt: Date.now() }]);
+  const handleAddLink = (newLink: Omit<LinkItem, 'id' | 'createdAt'>) => {
+    setLinks([...links, { 
+      ...newLink, 
+      id: crypto.randomUUID(), 
+      createdAt: Date.now() 
+    }]);
     setIsFormOpen(false);
   };
 
-  const handleUpdateLink = (updatedLink: Omit<LinkItem, 'id'>) => {
+  const handleUpdateLink = (updatedLink: Omit<LinkItem, 'id' | 'createdAt'>) => {
+    if (!editingId) return;
+    
     setLinks(links.map(link => 
-      link.id === editingId ? { ...updatedLink, id: editingId, createdAt: link.createdAt } : link
+      link.id === editingId 
+        ? { ...updatedLink, id: editingId, createdAt: link.createdAt } 
+        : link
     ));
     setEditingId(null);
     setIsFormOpen(false);
@@ -41,6 +51,8 @@ const App = () => {
       setLinks(links.filter(link => link.id !== id));
     }
   };
+
+  const linkToEdit = links.find(link => link.id === editingId);
 
   return (
     <div className="app-container">
@@ -64,9 +76,12 @@ const App = () => {
           <div className="modal-overlay">
             <div className="modal-content">
               <LinkForm
-                initialData={editingId ? links.find(link => link.id === editingId) : undefined}
+                initialData={linkToEdit}
                 onSubmit={editingId ? handleUpdateLink : handleAddLink}
-                onCancel={() => setIsFormOpen(false)}
+                onCancel={() => {
+                  setEditingId(null);
+                  setIsFormOpen(false);
+                }}
               />
             </div>
           </div>
@@ -74,14 +89,13 @@ const App = () => {
 
         <LinkList 
           links={filteredLinks} 
-          onEdit={setEditingId} 
+          onEdit={(id) => {
+            setEditingId(id);
+            setIsFormOpen(true);
+          }}
           onDelete={handleDeleteLink} 
         />
       </main>
-
-      <footer className="app-footer">
-        <p>© {new Date().getFullYear()} React Links Vault</p>
-      </footer>
     </div>
   );
 };
